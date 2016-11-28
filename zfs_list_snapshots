@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import subprocess, shlex
+
+zfs_list = subprocess.check_output(shlex.split('zfs list homePool/home/agents -r -o name -H'), universal_newlines=True)
+dataset = 1
+for zfs_list_line in zfs_list.splitlines()[1:]:
+    subprocess.call(shlex.split('zfs list -t snapshot -r -o name -H {0}'.format(zfs_list_line)), universal_newlines=True)
+    dataset += 1
