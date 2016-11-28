@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+import subprocess, shlex
+
+zfs_list = subprocess.check_output(shlex.split('zfs list homePool/home/agents -r -o name -H'), universal_newlines=True)
+dataset = 1
+for zfs_list_line in zfs_list.splitlines()[1:]:
+    zfs_list_snapshots = subprocess.check_output(shlex.split('zfs list -t snapshot -r -o name -H {0}'.format(zfs_list_line)), universal_newlines=True)
+    send = subprocess.Popen(shlex.split('zfs send -R {0}'.format(zfs_list_snapshots.splitlines()[6])), stdout=subprocess.PIPE)
+    recv = subprocess.Popen(shlex.split('zfs recv homePool/{0}'.format(dataset)), stdin=send.stdout)
+    recv.wait()
+    dataset+=1
